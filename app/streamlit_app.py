@@ -26,7 +26,15 @@ st.markdown('This is a starter UI that displays top picks from the scores table.
 date = st.date_input('As of date')
 
 if st.button('Load top picks'):
-    query = 'SELECT player_id, total_score, season_score, recent_score, matchup_score, statcast_score, park_score, weather_score, bullpen_score FROM scores WHERE as_of = %s ORDER BY total_score DESC LIMIT 200'
+    query = '''
+        SELECT s.player_id, COALESCE(p.full_name, 'Unknown') as player_name, 
+               s.total_score, s.season_score, s.recent_score, s.matchup_score, 
+               s.statcast_score, s.park_score, s.weather_score, s.bullpen_score 
+        FROM scores s
+        LEFT JOIN players p ON s.player_id = p.player_id
+        WHERE s.as_of = %s 
+        ORDER BY s.total_score DESC
+    '''
     try:
         df = pd.read_sql_query(query, engine, params=(date,))
     except Exception as e:
