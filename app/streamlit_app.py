@@ -2,14 +2,22 @@
 This is an interactive starter UI.
 """
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
 import sqlalchemy
 import pandas as pd
 
-load_dotenv()
+# Load .env from the repo root
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(env_path)
 
-engine = sqlalchemy.create_engine(os.getenv('DATABASE_URL'))
+database_url = os.getenv('DATABASE_URL')
+if not database_url:
+    st.error('DATABASE_URL not found in .env file')
+    st.stop()
+
+engine = sqlalchemy.create_engine(database_url)
 
 st.title('MLB HR / HRR Prospects Analyzer - Starter')
 
